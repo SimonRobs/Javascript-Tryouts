@@ -3,10 +3,9 @@ class Precinct {
     this.i = i;
     this.j = j;
     this.pos = new Point(
-      this.j * width / COLS,
-      this.i * height / ROWS
+      this.j,
+      this.i
     );
-    this.districtId = '';
     this.color = WHITE;
     this.value = value;
     this.inDistrict = false;
@@ -19,12 +18,11 @@ class Precinct {
   show() {
     let pWidth = width / COLS;
     let pHeight = height / ROWS;
-    let x = this.pos.x;
-    let y = this.pos.y;
+    let x = this.j * width / COLS;
+    let y = this.i * height / ROWS;
     fill(this.color.r, this.color.g, this.color.b);
+    stroke(51)
     strokeWeight(1);
     rect(x, y, pWidth, pHeight);
-    // fill(0);
-    // text(this.districtId, x + pWidth / 2, y + pHeight / 2);
   }
 }

@@ -3,6 +3,10 @@ class KMeansPlusPlus {
     constructor() {
         this.initRandomPoints();
         this.doKMeansPlusPlus();
+        for (let c of this.centers) {
+            c.x = c.x / width * COLS;
+            c.y = c.y / height * ROWS;
+        }
     }
 
     show() {
@@ -13,7 +17,9 @@ class KMeansPlusPlus {
         for (let c of this.centers) {
             noStroke();
             fill(255, 0, 0);
-            ellipse(c.x, c.y, 10);
+            let centerX = c.x * width / COLS;
+            let centerY = c.y * height / ROWS;
+            ellipse(centerX, centerY, 4);
         }
     }
 

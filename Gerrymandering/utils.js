@@ -6,3 +6,7 @@ function getPrecinctPerDistrictBounds(nPrecincts, nDistricts) {
         high
     };
 }
+
+function heaviside(n) {
+    return (n < 0) ? 0 : 1;
+}

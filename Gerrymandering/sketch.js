@@ -5,7 +5,7 @@
  **/
 const ROWS = 6;
 const COLS = 50;
-const N_DISTRICTS = 10;
+const N_DISTRICTS = 40;
 /* 
  * *************************************
  * *************************************
@@ -33,20 +33,22 @@ function setup() {
 }
 
 function draw() {
-    if (!stopped) {
-        while (!populateDistricts()) resetAll();
-        showAll();
-        stopped = true;
-    }
-    // let populated = populateDistricts();
-    // if (populated) {
-    //     noLoop();
+    // if (!stopped) {
+    //     // while (!populateDistricts()) resetAll();
+    //     populateDistricts();
     //     showAll();
-    // } else resetAll();
+    //     stopped = true;
+    // }
+    frameRate(60);
+    let populated = populateDistricts();
+    showAll();
+    if (populated) {
+        noLoop();
+    } else resetAll();
 }
 
 function keyPressed(event) {
-    if (event.key == 'r') {
+    if (event.key === 'r') {
         resetAll();
     }
     stopped = false;
@@ -60,14 +62,11 @@ function showAll() {
 }
 
 function resetAll() {
-    console.log("RESETTING");
     // Reset all the precincts
     for (let p of precincts) {
         p.inDistrict = false;
     }
-
     resetDistricts();
-
     addCenterPrecincts();
 }
 
@@ -110,32 +109,108 @@ function addCenterPrecincts() {
 }
 
 function populateDistricts() {
-    let couldNotAdd = false;
-    // For each precinct
+    let counter = 0;
+    let prevCenters = districts.map(d => d.districtCenter);
+    let allPrecinctsInDistricts = false;
+    let diff = 1;
+    do {
+        for (let d of districts) {
+            d.clearPrecincts();
+        }
+        let added = tryPopulateDistricts();
+        if (added) {
+            allPrecinctsInDistricts = true;
+            break;
+        }
+        // Recalculate the center
+        for (let d of districts) {
+            d.recalculateCenter();
+        }
+
+        // Check the difference between the previous centers
+        // and the current ones
+        for (let i = 0; i < districts.length; ++i) {
+            diff += prevCenters[i].getManhattanDistance(districts[i].districtCenter);
+        }
+        prevCenters = districts.map(d => d.districtCenter);
+        counter++;
+    } while (diff != 0 && counter < 100);
+
+    // If we could add all the precincts,
+    // check if some districts have too many or too few
+    // precincts
+    if (allPrecinctsInDistricts && !tryAdjustDistricts())
+        return false;
+
+    return allPrecinctsInDistricts;
+}
+
+function tryAdjustDistricts() {
+    let allDistrictsAdded = false;
+    let counter = 0;
+    do {
+
+        counter++;
+    } while (!allDistrictsAdded && counter < 100);
+    return allDistrictsAdded;
+}
+
+function tryPopulateDistricts() {
+    let nonAddedPrecincts = [];
+    // Add precincts along the center of the district
     for (let p of precincts) {
         if (p.inDistrict) continue;
-        // Order the districts by closest
-        let distances = [];
-        for (let i = 0; i < N_DISTRICTS; ++i) {
-            distances.push({
-                i,
-                dist: districts[i].distanceFromCenter(p)
-            });
+        let added = tryAddPrecinct(p, false);
+        if (!added) nonAddedPrecincts.push(p);
+    }
+    // For the precincts that were not added, try to add them normally
+    let nNonAddedPrecincts = nonAddedPrecincts.length;
+    for (let p of nonAddedPrecincts) {
+        if (p.inDistrict) continue;
+        if (tryAddPrecinct(p, true)) nNonAddedPrecincts--;
+    }
+    return nNonAddedPrecincts == 0;
+}
+
+function tryAddPrecinct(p, checkDistance) {
+    // Order the districts by closest
+    let distances = [];
+    for (let i = 0; i < N_DISTRICTS; ++i) {
+        let dist = Math.round(districts[i].distanceFromCenter(p) * 10) / 10;
+        distances.push({
+            i,
+            dist
+        });
+    }
+    distances.sort((a, b) => a.dist - b.dist);
+    let added = false;
+    let districtsAtEqualDistance = [distances[0]];
+    // Try to add the point to the closest distric in order
+    for (let i = 0; i < distances.length; ++i) {
+        // If there are multiple districts at equal distance, pick the one
+        // with less precincts
+        if (distances[i].dist === districtsAtEqualDistance[0].dist) {
+            districtsAtEqualDistance.push(distances[i]);
+            continue;
         }
-        distances.sort((a, b) => a.dist - b.dist);
-        let added = false;
-        // Try to add the point to the closest distric in order
-        for (let i = 0; i < distances.length; ++i) {
-            if (districts[distances[i].i].addPrecinct(p)) {
+        let targetDIndex = -1;
+        let minSize = N_PRECINCTS;
+        for (let possibleDistrict of districtsAtEqualDistance) {
+            if (districts[possibleDistrict.i].precincts.length < minSize) {
+                minSize = districts[possibleDistrict.i].precincts.length;
+                targetDIndex = possibleDistrict.i;
+            }
+        }
+        let targetDistrict = districts[targetDIndex];
+        districtFitness = 2 //FitnessCalculator.calculateFitness(targetDistrict);
+        if (random(0, 1) <= districtFitness) {
+            let couldAdd = checkDistance ? targetDistrict.addPrecinctCheckAllDistances(p) : targetDistrict.addPrecinct(p);
+            if (couldAdd) {
                 added = true;
                 break;
             }
         }
-
-        // If we could not add the point to any district,
-        // we have to recalculate the centers
-        // if (!added) couldNotAdd = true;
-        if (!added) return false;
+        districtsAtEqualDistance = [distances[i]];
     }
-    return !couldNotAdd;
+    return added;
 }

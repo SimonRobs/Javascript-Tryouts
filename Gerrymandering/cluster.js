@@ -1,7 +1,6 @@
 class Cluster {
-    constructor(id, center, maxPoints) {
+    constructor(id, center) {
         this.id = id;
-        this.maxPoints = maxPoints;
         this.center = center;
         this.points = [];
     }
