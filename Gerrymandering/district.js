@@ -12,7 +12,7 @@ class District {
             r: random(10, 220),
             g: random(10, 220),
             b: random(10, 220)
-        }
+        };
     }
 
     addPrecinct(precinct) {
@@ -56,7 +56,7 @@ class District {
             p.color = this.color;
             p.show();
         }
-        fill(255, 0, 0);
-        ellipse(this.districtCenter.x, this.districtCenter.y, 10);
+        fill(0, 0, 0);
+        ellipse(this.districtCenter.x, this.districtCenter.y, 4);
     }
 }

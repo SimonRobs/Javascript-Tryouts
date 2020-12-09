@@ -3,9 +3,9 @@
  *  CHANGEABLE CONSTANTS
  * *************************************
  **/
-const ROWS = 36;
-const COLS = 60;
-const N_DISTRICTS = 40;
+const ROWS = 6;
+const COLS = 50;
+const N_DISTRICTS = 10;
 /* 
  * *************************************
  * *************************************
@@ -33,16 +33,16 @@ function setup() {
 }
 
 function draw() {
-    // if (!stopped) {
-    //     while (!populateDistricts()) resetAll();
-    //     showAll();
-    //     stopped = true;
-    // }
-    let populated = populateDistricts();
-    if (populated) {
-        noLoop();
+    if (!stopped) {
+        while (!populateDistricts()) resetAll();
         showAll();
-    } else resetAll();
+        stopped = true;
+    }
+    // let populated = populateDistricts();
+    // if (populated) {
+    //     noLoop();
+    //     showAll();
+    // } else resetAll();
 }
 
 function keyPressed(event) {
@@ -74,6 +74,7 @@ function resetAll() {
 function resetDistricts() {
     districts = [];
     let centers = (new KMeansPlusPlus()).centers;
+    centers = orderByDescendingClosestDistance(centers);
     let nPrecinctsRemaining = N_PRECINCTS;
     let nDistrictsRemaining = N_DISTRICTS;
     for (let i = 0; i < N_DISTRICTS; ++i) {
@@ -83,6 +84,19 @@ function resetDistricts() {
         nPrecinctsRemaining -= maxPrecincts;
         nDistrictsRemaining--;
     }
+}
+
+function orderByDescendingClosestDistance(centers) {
+    let centersSorted = [];
+    for (let c1 of centers) {
+        centersSorted.push({
+            p: c1,
+            dist: c1.getMinDistanceFrom(centers)
+        });
+    }
+    centersSorted.sort((a, b) => b.dist - a.dist);
+    centersSorted = centersSorted.map(el => el.p);
+    return centersSorted;
 }
 
 function addCenterPrecincts() {
@@ -120,7 +134,8 @@ function populateDistricts() {
 
         // If we could not add the point to any district,
         // we have to recalculate the centers
-        if (!added) couldNotAdd = true;
+        // if (!added) couldNotAdd = true;
+        if (!added) return false;
     }
     return !couldNotAdd;
 }
