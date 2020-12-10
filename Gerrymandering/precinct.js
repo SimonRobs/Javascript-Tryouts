@@ -3,8 +3,8 @@ class Precinct {
     this.i = i;
     this.j = j;
     this.pos = new Point(
-      this.j,
-      this.i
+      this.j + 0.5,
+      this.i + 0.5
     );
     this.color = WHITE;
     this.value = value;

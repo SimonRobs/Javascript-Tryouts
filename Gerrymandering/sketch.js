@@ -3,8 +3,8 @@
  *  CHANGEABLE CONSTANTS
  * *************************************
  **/
-const ROWS = 6;
-const COLS = 50;
+const ROWS = 14;
+const COLS = 20;
 const N_DISTRICTS = 40;
 /* 
  * *************************************
@@ -22,9 +22,9 @@ let nonAdded = 0;
 function setup() {
     createCanvas(windowWidth, windowHeight);
     // Initialize the precincts
-    for (i = 0; i < ROWS; ++i) {
-        for (j = 0; j < COLS; ++j) {
-            let value = random(0, 100);
+    for (let i = 0; i < ROWS; ++i) {
+        for (let j = 0; j < COLS; ++j) {
+            let value = int(random(0, 100));
             precincts.push(new Precinct(i, j, value));
         }
     }
@@ -33,12 +33,19 @@ function setup() {
 }
 
 function draw() {
-    // if (!stopped) {
-    //     // while (!populateDistricts()) resetAll();
-    //     populateDistricts();
-    //     showAll();
-    //     stopped = true;
-    // }
+    // showWithKeyboard();
+    showNormal();
+}
+
+function showWithKeyboard() {
+    if (!stopped) {
+        populateDistricts();
+        showAll();
+        stopped = true;
+    }
+}
+
+function showNormal() {
     frameRate(60);
     let populated = populateDistricts();
     showAll();
@@ -67,7 +74,6 @@ function resetAll() {
         p.inDistrict = false;
     }
     resetDistricts();
-    addCenterPrecincts();
 }
 
 function resetDistricts() {
@@ -77,7 +83,7 @@ function resetDistricts() {
     let nPrecinctsRemaining = N_PRECINCTS;
     let nDistrictsRemaining = N_DISTRICTS;
     for (let i = 0; i < N_DISTRICTS; ++i) {
-        maxPrecinctsBounds = getPrecinctPerDistrictBounds(nPrecinctsRemaining, nDistrictsRemaining);
+        let maxPrecinctsBounds = getPrecinctPerDistrictBounds(nPrecinctsRemaining, nDistrictsRemaining);
         let maxPrecincts = (maxPrecinctsBounds.high > nPrecinctsRemaining) ? maxPrecinctsBounds.low : maxPrecinctsBounds.high;
         districts.push(new District(i, centers[i], maxPrecincts, MAX_DIST_BETWEEN_PRECINCTS));
         nPrecinctsRemaining -= maxPrecincts;
@@ -117,9 +123,14 @@ function populateDistricts() {
         for (let d of districts) {
             d.clearPrecincts();
         }
+        // addCenterPrecincts();
         let added = tryPopulateDistricts();
         if (added) {
             allPrecinctsInDistricts = true;
+            // Recalculate the centers one last time
+            for (let d of districts) {
+                d.recalculateCenter();
+            }
             break;
         }
         // Recalculate the center
@@ -139,8 +150,8 @@ function populateDistricts() {
     // If we could add all the precincts,
     // check if some districts have too many or too few
     // precincts
-    if (allPrecinctsInDistricts && !tryAdjustDistricts())
-        return false;
+    // if (allPrecinctsInDistricts && !tryAdjustDistricts())
+    //     return false;
 
     return allPrecinctsInDistricts;
 }
@@ -149,7 +160,7 @@ function tryAdjustDistricts() {
     let allDistrictsAdded = false;
     let counter = 0;
     do {
-
+        // Do something...
         counter++;
     } while (!allDistrictsAdded && counter < 100);
     return allDistrictsAdded;
@@ -201,6 +212,13 @@ function tryAddPrecinct(p, checkDistance) {
                 targetDIndex = possibleDistrict.i;
             }
         }
+        // let maxSize = -1;
+        // for (let possibleDistrict of districtsAtEqualDistance) {
+        //     if (districts[possibleDistrict.i].precincts.length > maxSize) {
+        //         maxSize = districts[possibleDistrict.i].precincts.length;
+        //         targetDIndex = possibleDistrict.i;
+        //     }
+        // }
         let targetDistrict = districts[targetDIndex];
         districtFitness = 2 //FitnessCalculator.calculateFitness(targetDistrict);
         if (random(0, 1) <= districtFitness) {
