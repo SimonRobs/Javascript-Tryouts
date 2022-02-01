@@ -5,7 +5,7 @@ const addBuildings = () => {
         const x = randomInt(0, WIDTH);
         addBuilding(x);
     }
-    buildings.sort((b1, b2) => b1.right > b2.right);
+    buildings.sort((b1, b2) => b1.left > b2.left);
 }
 
 const addBuilding = (x) => {

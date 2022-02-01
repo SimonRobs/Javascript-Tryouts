@@ -1,7 +1,7 @@
 class Building {
-    constructor(r, l, h) {
-        this.right = r;
+    constructor(l, r, h) {
         this.left = l;
+        this.right = r;
         this.height = h;
 
         this.color = {
@@ -13,7 +13,7 @@ class Building {
 
     show() {
         fill(this.color.r, this.color.g, this.color.b, 225);
-        const w = this.left - this.right;
-        rect(this.right, HEIGHT - this.height, w, this.height);
+        const w = this.right - this.left;
+        rect(this.left, HEIGHT - this.height, w, this.height);
     }
 }
