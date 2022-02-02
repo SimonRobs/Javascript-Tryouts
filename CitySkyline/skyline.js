@@ -1,5 +1,3 @@
-
-
 class Skyline {
     constructor(points) {
         this.points = points;

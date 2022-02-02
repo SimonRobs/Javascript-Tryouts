@@ -66,12 +66,4 @@ class BinaryHeap {
         }
         this.elements[hole] = temp;
     }
-
-    print() {
-        let s = "";
-        for (let i = 1; i <= this.size; ++i) {
-            s += this.elements[i] + ', ';
-        }
-        console.log(s);
-    }
 }
