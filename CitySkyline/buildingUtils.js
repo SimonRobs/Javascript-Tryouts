@@ -1,5 +1,3 @@
-const N_BUILDINGS = 5;
-
 const addBuildings = () => {
     for (let i = 0; i < N_BUILDINGS; ++i) {
         const x = randomInt(0, WIDTH);
