@@ -1,8 +1,8 @@
 let instances = 0;
 
 class Building {
-    constructor(l, r, h) {
-        
+    constructor(l, r, h, color) {
+
         this.id = instances;
         instances++;
 
@@ -10,6 +10,14 @@ class Building {
         this.right = r;
         this.height = h;
 
+        this.color = color ? color : {
+            r: randomInt(0, 255),
+            g: randomInt(0, 255),
+            b: randomInt(0, 255)
+        }
+    }
+
+    randomizeColor() {
         this.color = {
             r: randomInt(0, 255),
             g: randomInt(0, 255),
